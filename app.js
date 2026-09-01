@@ -151,12 +151,119 @@
 
   /* ---------------- rendering ---------------- */
 
+  var NS = "http://www.w3.org/2000/svg";
+  function sv(tag, attrs) {
+    var n = document.createElementNS(NS, tag);
+    for (var k in attrs) if (attrs.hasOwnProperty(k)) n.setAttribute(k, attrs[k]);
+    return n;
+  }
+
+  /* Physical stats on the right, special on the left, Speed at the bottom -
+     the layout Pokemon players already read fluently. */
+  var RADAR = ["hp", "attack", "defense", "speed", "special_defense", "special_attack"];
+
+  function radarChart(o) {
+    var self = o.from.id === o.to.id;
+    var peak = RADAR.reduce(function (m, k) {
+      return Math.max(m, o.from.stats[k], o.to.stats[k]);
+    }, 0);
+    var scale = Math.max(50, Math.ceil(peak * 1.12 / 25) * 25);
+    var cx = 172, cy = 152, R = 92;
+
+    function ang(i) { return -Math.PI / 2 + i * Math.PI / 3; }
+    function pt(i, v) {
+      var a = ang(i), r = v / scale * R;
+      return [cx + Math.cos(a) * r, cy + Math.sin(a) * r];
+    }
+    function ring(v) {
+      return RADAR.map(function (k, i) {
+        var p = pt(i, v); return p[0].toFixed(1) + "," + p[1].toFixed(1);
+      }).join(" ");
+    }
+    function shape(stats) {
+      return RADAR.map(function (k, i) {
+        var p = pt(i, stats[k]); return p[0].toFixed(1) + "," + p[1].toFixed(1);
+      }).join(" ");
+    }
+
+    var g = sv("svg", {viewBox: "0 0 344 306", "class": "radar", role: "img",
+                       "aria-label": self
+                         ? p_label(o.to)
+                         : "Radar chart comparing the six base stats of " + o.from.name +
+                           " and " + o.to.name + ". " + p_label(o.to)});
+
+    [0.25, 0.5, 0.75, 1].forEach(function (k) {
+      g.appendChild(sv("polygon", {points: ring(scale * k),
+                                   "class": "rgrid" + (k === 1 ? " outer" : "")}));
+    });
+    RADAR.forEach(function (k, i) {
+      var p = pt(i, scale);
+      g.appendChild(sv("line", {x1: cx, y1: cy, x2: p[0].toFixed(1), y2: p[1].toFixed(1),
+                                "class": "raxis"}));
+    });
+
+    if (!self) g.appendChild(sv("polygon", {points: shape(o.from.stats), "class": "rfrom"}));
+    g.appendChild(sv("polygon", {points: shape(o.to.stats), "class": "rto"}));
+
+    RADAR.forEach(function (k, i) {
+      var d = self ? 0 : o.to.stats[k] - o.from.stats[k];
+      var dir = d > 0 ? "up" : d < 0 ? "dn" : "flat";
+      var p = pt(i, o.to.stats[k]);
+      g.appendChild(sv("circle", {cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: 3.4,
+                                  "class": "rdot " + dir}));
+
+      var lp = pt(i, scale * 1.24), sin = Math.sin(ang(i)), cos = Math.cos(ang(i));
+      var anchor = Math.abs(cos) < 0.25 ? "middle" : cos > 0 ? "start" : "end";
+      var above = sin < 0.4;
+      var name = sv("text", {x: lp[0].toFixed(1), y: (lp[1] + (above ? -10 : 12)).toFixed(1),
+                             "text-anchor": anchor, "class": "rlab"});
+      name.textContent = E.STAT_LABEL[k];
+      g.appendChild(name);
+
+      var val = sv("text", {x: lp[0].toFixed(1), y: (lp[1] + (above ? 3 : 25)).toFixed(1),
+                            "text-anchor": anchor, "class": "rval " + dir});
+      val.textContent = self ? String(o.to.stats[k])
+                             : o.from.stats[k] + " \u2192 " + o.to.stats[k];
+      g.appendChild(val);
+    });
+
+    return g;
+  }
+
+  function p_label(p) {
+    return E.STATS.map(function (k) { return E.STAT_LABEL[k] + " " + p.stats[k]; }).join(", ") + ".";
+  }
+
+  /* Names the two shapes, with sprites, so no one has to guess which is which. */
+  function radarKey(o) {
+    var box = el("div", "rlegend");
+    function entry(p, cls, when) {
+      var e = el("div", "rleg " + cls);
+      e.appendChild(img(p, "rleg-img", false));
+      var t = el("div");
+      t.appendChild(el("span", "rleg-name", p.name));
+      t.appendChild(el("span", "rleg-sub", when + " \u00b7 " + p.bst + " BST"));
+      e.appendChild(t);
+      return e;
+    }
+    if (o.from.id !== o.to.id) box.appendChild(entry(o.from, "is-from", "now, unevolved"));
+    box.appendChild(entry(o.to, "is-to", o.from.id === o.to.id ? "current stats" : "after evolving"));
+    return box;
+  }
+
   function statRows(o) {
     var wrap = el("div", "stats");
     var peak = E.STATS.reduce(function (m, s) {
       return Math.max(m, o.from.stats[s], o.to.stats[s]);
     }, 0);
     var scale = Math.max(150, peak * 1.05);
+
+    var head = el("div", "stat head");
+    head.appendChild(el("span", "lab", ""));
+    head.appendChild(el("span", "v from", o.from.name));
+    head.appendChild(el("div", ""));
+    head.appendChild(el("span", "v to wide", o.to.name));
+    wrap.appendChild(head);
 
     E.STATS.forEach(function (s) {
       var a = o.from.stats[s], b = o.to.stats[s], d = b - a;
@@ -275,17 +382,19 @@
     }
     var m = function (dm) { return (dm / 10).toFixed(1) + " m"; };
     var kg = function (hg) { return (hg / 10).toFixed(1) + " kg"; };
+    var was = function (v) { return o.from.name + ": " + v; };
 
     var wasRole = E.roleOf(o.from);
-    add("Battle role", o.role, wasRole === o.role ? "Unchanged from " + o.from.name
-                                                  : o.from.name + " was: " + wasRole);
+    add("Battle role", o.role, wasRole === o.role ? "Unchanged from " + o.from.name : was(wasRole));
     if (o.to.baseExp != null && o.from.baseExp != null)
       add("Base experience", String(o.to.baseExp),
-          sign(o.to.baseExp - o.from.baseExp) + " — it yields more EXP when defeated");
-    add("Height", m(o.to.height), m(o.from.height) + " before");
-    add("Weight", kg(o.to.weight), kg(o.from.weight) + " before");
-    add("Abilities", o.to.abilities.join(", ") || "—",
-        o.to.hidden ? "Hidden: " + o.to.hidden : null);
+          was(o.from.baseExp) + " (" + sign(o.to.baseExp - o.from.baseExp) + ")");
+    add("Height", m(o.to.height), was(m(o.from.height)));
+    add("Weight", kg(o.to.weight), was(kg(o.from.weight)));
+    add("Abilities", o.to.abilities.join(", ") || "\u2014",
+        was(o.from.abilities.join(", ") || "\u2014"));
+    add("Hidden ability", o.to.hidden || "\u2014",
+        o.from.hidden ? was(o.from.hidden) : was("\u2014"));
     return d;
   }
 
@@ -300,6 +409,9 @@
     head.appendChild(el("span", "pill " + tierPill[0], tierPill[1]));
     head.appendChild(el("span", "pill", o.role));
     card.appendChild(head);
+    card.appendChild(el("p", "card-note",
+      "Everything below compares " + o.from.name + " as it is now (grey) with " +
+      o.to.name + " after evolving (blue)."));
 
     var ledger = el("div", "ledger");
     var gain = el("div", "gain");
@@ -324,7 +436,13 @@
 
     var s = el("section", "card");
     s.appendChild(el("h3", null, "Base stats · " + o.from.name + " vs " + o.to.name));
-    s.appendChild(statRows(o));
+    var sw = el("div", "statwrap");
+    var chart = el("div", "chartcol");
+    chart.appendChild(radarChart(o));
+    chart.appendChild(radarKey(o));
+    sw.appendChild(chart);
+    sw.appendChild(statRows(o));
+    s.appendChild(sw);
     wrap.appendChild(s);
 
     var t = el("section", "card");
@@ -438,6 +556,13 @@
         " at " + p.stats[bestStat(p)] + ", and its weakest is " + worstStatName(p) +
         " at " + p.stats[worstStat(p)] + " — build the moveset around the first and cover the second.";
       end.appendChild(pe);
+      var solo = el("div", "statwrap solo");
+      var soloChart = el("div", "chartcol");
+      soloChart.appendChild(radarChart(E.compare(p, p)));
+      soloChart.appendChild(radarKey(E.compare(p, p)));
+      solo.appendChild(soloChart);
+      solo.style.marginTop = "22px";
+      end.appendChild(solo);
       var mp = el("div");
       var mh = el("h3", null, "Defensive matchups");
       mh.style.marginTop = "26px";

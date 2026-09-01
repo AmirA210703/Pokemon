@@ -320,3 +320,46 @@ h1 a { color: inherit; text-decoration: none; background: inherit;
   -webkit-background-clip: text; background-clip: text; }
 h1 a:hover { text-decoration: none; }
 body.has-result h1 a:hover { opacity: .8; }
+
+/* ---------- radar chart ---------- */
+.statwrap { display: grid; grid-template-columns: minmax(0, 344px) minmax(0, 1fr);
+  gap: 30px; align-items: center; }
+.statwrap.solo { grid-template-columns: minmax(0, 344px); justify-content: center; }
+.chartcol { min-width: 0; }
+.radar { display: block; width: 100%; height: auto; margin-inline: auto; }
+.rgrid { fill: none; stroke: var(--line-soft); stroke-width: 1; }
+.rgrid.outer { stroke: var(--line); }
+.raxis { stroke: var(--line-soft); stroke-width: 1; }
+.rfrom { fill: rgba(139, 148, 168, .18); stroke: #8b94a8; stroke-width: 1.6; stroke-dasharray: 4 3; }
+.rto { fill: rgba(110, 168, 254, .22); stroke: #6ea8fe; stroke-width: 2; }
+.rdot { stroke: var(--surface); stroke-width: 1.4; }
+.rdot.up { fill: var(--up); } .rdot.dn { fill: var(--down); } .rdot.flat { fill: #6ea8fe; }
+.rlab { fill: var(--ink-dim); font-family: var(--font); font-size: 11px; font-weight: 600;
+  letter-spacing: .04em; }
+.rval { fill: var(--ink-faint); font-family: var(--font); font-size: 11px; font-weight: 700;
+  font-variant-numeric: tabular-nums; }
+.rval.up { fill: var(--up); } .rval.dn { fill: var(--down); }
+
+.rlegend { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 4px; }
+.rleg { display: flex; align-items: center; gap: 9px; padding: 6px 13px 6px 8px;
+  border-radius: 10px; background: var(--bg-soft);
+  border: 1px solid var(--line-soft); border-left: 3px solid var(--line); }
+.rleg.is-from { border-left-color: #8b94a8; }
+.rleg.is-to { border-left-color: #6ea8fe; }
+.rleg-img { width: 32px; height: 32px; object-fit: contain; flex: none; }
+.rleg-name { display: block; font-size: .88rem; font-weight: 700; line-height: 1.25; }
+.rleg-sub { display: block; font-size: .72rem; color: var(--ink-faint); }
+
+/* ---------- who-is-who labelling ---------- */
+.card-note { margin: 10px 0 0; color: var(--ink-dim); font-size: .92rem; max-width: 72ch; }
+.stat.head { margin-bottom: 3px; font-size: .68rem; letter-spacing: .07em;
+  text-transform: uppercase; font-weight: 700; }
+.stat.head .v { overflow: visible; white-space: nowrap; color: var(--ink-faint); }
+.stat.head .v.to { color: var(--ink-dim); }
+/* the evolved name needs the delta column's width too, or it collides with it */
+.stat.head .v.to.wide { grid-column: 4 / 6; }
+
+@media (max-width: 900px) {
+  .statwrap { grid-template-columns: 1fr; gap: 20px; }
+  .statwrap.solo { grid-template-columns: 1fr; }
+}
