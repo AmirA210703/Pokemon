@@ -30,7 +30,10 @@
     var n = el("img", cls);
     n.src = big ? art(p) : sprite(p);
     n.alt = p.name;
-    n.loading = "lazy";
+    /* The artwork is the first thing on screen; only the small sprites further
+       down the page are worth deferring. */
+    n.loading = big ? "eager" : "lazy";
+    if (big) n.setAttribute("fetchpriority", "high");
     n.decoding = "async";
     n.dataset.step = big ? "0" : "1";
     n.addEventListener("error", function () {

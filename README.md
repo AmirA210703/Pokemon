@@ -3,8 +3,8 @@
 A small static site that answers one question for any of the 721 Pokémon in the supplied dataset:
 **should you evolve it, and what do you give up if you do?**
 
-- **Live site:** https://amira210703.github.io/pokemon-evolve/
-- **Repository:** https://github.com/AmirA210703/pokemon-evolve
+- **Live site:** https://amira210703.github.io/Pokemon/
+- **Repository:** https://github.com/AmirA210703/Pokemon
 
 ## Why the site is built this way
 
@@ -24,12 +24,12 @@ where a verdict is worth having.
 
 ## How the verdict is computed
 
-Everything comes from `data/pokemon.csv` — no external API calls for data.
+Everything comes from `pokemon.csv` — no external API calls for data.
 
 1. **Evolution lines** are rebuilt from `evolves_from_species_id` and `evolution_chain_id`.
 2. **Stat deltas** are computed per stat and for the total, and flagged when a drop is meaningful
    (≥ 15 points, with Speed called out separately because losing the first move matters most).
-3. **Defensive typing** is run through the Generation VI type chart in `assets/engine.js`: new
+3. **Defensive typing** is run through the Generation VI type chart in `engine.js`: new
    weaknesses, shed weaknesses, new resistances and immunities, and any 4× weakness picked up.
 4. **Abilities** gained and lost are diffed.
 5. A severity score turns that into one of four verdicts — *clear upgrade*, *worth it*,
@@ -55,13 +55,13 @@ unevolved. It answers the part the numbers can answer and says as much in the fo
 ## Project layout
 
 ```
-index.html          markup and the copy in the footer
-assets/style.css    all styling; per-Pokémon accent colour comes from color_1 in the CSV
-assets/engine.js    type chart, evolution graph, comparison and verdict logic (no DOM)
-assets/app.js       search, hash routing, rendering
-assets/data.js      generated — window.POKEDEX
-build_data.py       CSV → data.js
-data/pokemon.csv    the supplied dataset, unmodified
+index.html      markup and the copy in the footer
+style.css       all styling; per-Pokémon accent colour comes from color_1 in the CSV
+engine.js       type chart, evolution graph, comparison and verdict logic (no DOM)
+app.js          search, hash routing, rendering
+data.js         generated — window.POKEDEX
+build_data.py   CSV → data.js
+pokemon.csv     the supplied dataset, unmodified
 ```
 
 ## Running it locally
@@ -82,7 +82,7 @@ python3 build_data.py
 
 Push to `main`, then in the repository go to **Settings → Pages** and set
 **Source: Deploy from a branch**, **Branch: `main`**, **Folder: `/ (root)`**. The site is live at
-`https://<username>.github.io/<repository>/` within a minute or two. `.nojekyll` is present so
+`https://amira210703.github.io/Pokemon/` within a minute or two. `.nojekyll` is present so
 GitHub serves the files as-is.
 
 ## Accessibility and browser support
