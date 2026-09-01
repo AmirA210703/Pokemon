@@ -3,8 +3,8 @@
 A small static site that answers one question for any of the 721 Pokémon in the supplied dataset:
 **should you evolve it, and what do you give up if you do?**
 
-- **Live site:** _add the GitHub Pages URL here after the first deploy_
-- **Repository:** _add the repository URL here_
+- **Live site:** https://amira210703.github.io/pokemon-evolve/
+- **Repository:** https://github.com/AmirA210703/pokemon-evolve
 
 ## Why the site is built this way
 
@@ -94,11 +94,27 @@ no build tooling.
 
 ## Time and cost
 
-_Fill these in before submitting — they are part of the grading._
+**Time spent: about 30 minutes**, in one uninterrupted session on 1 September 2026. Roughly ten
+minutes went on reading the dataset and working out which question it could honestly answer — the
+decision to report what an evolution *costs* rather than what it gains came out of finding that 38
+evolutions drop a stat and two lose base stats outright. About fifteen minutes went on building it:
+the CSV conversion, the type chart and verdict logic, and the layout. The last five minutes were
+browser testing on desktop and mobile, and deployment.
 
-- **Time spent:** ~__ hours.
-- **Cost:** Built in one session with Claude Code (Claude Opus). Approximate usage: __ .
-  No paid APIs, no hosting cost — GitHub Pages is free for public repositories.
+**Cost: DKK 0 in direct spend.**
+
+- **AI tools.** The site was built with Claude Code running Claude Opus 5, inside an existing
+  subscription rather than a metered API key, so there was no per-token charge. The whole project
+  was one conversation of roughly fifty tool calls — dataset analysis, file writes, and automated
+  browser checks — which is a small share of a single day's usage allowance on that subscription.
+  Claude wrote the code; the analytical framing, the data decisions and the review of each
+  iteration were directed rather than accepted as-is, and nine defects caught in testing — four in
+  the verdict wording, five in layout and copy — were fixed before the first commit.
+- **Hosting.** GitHub Pages serves public repositories free of charge, with no build minutes
+  consumed for a static site.
+- **Assets.** The artwork is fetched from the public PokeAPI sprite set through the free jsDelivr
+  CDN, so there is no image hosting or bandwidth bill. No paid libraries, fonts or services are used
+  anywhere in the project.
 
 ## Credits
 
