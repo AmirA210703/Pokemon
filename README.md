@@ -72,7 +72,7 @@ No build step and no dependencies. Any static server works:
 python3 -m http.server 8000
 ```
 
-Then open <http://localhost:8000>. To regenerate `assets/data.js` after changing the CSV:
+Then open <http://localhost:8000>. To regenerate `data.js` after changing the CSV:
 
 ```bash
 python3 build_data.py
@@ -82,8 +82,8 @@ python3 build_data.py
 
 Push to `main`, then in the repository go to **Settings → Pages** and set
 **Source: Deploy from a branch**, **Branch: `main`**, **Folder: `/ (root)`**. The site is live at
-`https://amira210703.github.io/Pokemon/` within a minute or two. `.nojekyll` is present so
-GitHub serves the files as-is.
+`https://amira210703.github.io/Pokemon/` within a minute or two. No Jekyll configuration is
+needed, since the site uses no folders or files that start with an underscore.
 
 ## Accessibility and browser support
 
